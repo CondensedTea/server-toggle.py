@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from hcloud import Client
 from hcloud.images.domain import Image
 from hcloud.servers.domain import Server
@@ -7,6 +9,8 @@ from hcloud.networks.domain import Network
 import json
 import click
 
+data_file = "/root/server-toggle.py/data.json"
+
 
 @click.group()
 def cli():
@@ -15,7 +19,7 @@ def cli():
 
 @click.command(help="Creates server from snapshot and writes its ID to file")
 def create():
-    with open("data.json", "r") as file:
+    with open(data_file, "r") as file:
         data = json.load(file)
 
     client = Client(token=data["token"])
@@ -29,13 +33,14 @@ def create():
     server = response.server
     data["server_id"] = f"{server.id}"
 
-    with open("data.json", "w") as file:
+    with open(data_file, "w") as file:
         json.dump(data, file, indent=4)
+    click.echo("creation complete")
 
 
 @click.command(help="Deletes server by ID")
 def delete():
-    with open("data.json", "r") as file:
+    with open(data_file, "r") as file:
         data = json.load(file)
 
     client = Client(token=data["token"])
@@ -45,8 +50,9 @@ def delete():
 
     data["server_id"] = "SERVER-IS-DOWN"
 
-    with open("data.json", "w") as file:
+    with open(data_file, "w") as file:
         json.dump(data, file, indent=4)
+    click.echo("deletion complete")
 
 
 cli.add_command(create)
